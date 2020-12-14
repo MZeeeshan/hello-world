@@ -1,1 +1,5 @@
-This is a branch
+muhammadzeeshan@InventHub09s-MacBook-Pro hellow-world-local.git % git remote -v
+local	http://localhost:5002/git/testgithub/hellow-world-local.git (fetch)
+local	http://localhost:5002/git/testgithub/hellow-world-local.git (push)
+origin	https://github.com/MZeeeshan/hello-world.git (fetch)
+origin	https://github.com/MZeeeshan/hello-world.git (push)
