@@ -1,0 +1,21 @@
+Lambda Security for Community Product
+Our community product has two modes for viewing projects:
+When the user is signed in, he can view his private projects and others’ public projects.
+When the user isn’t signed in, he should be able to view others’ public projects.
+
+ECAD Lambdas used for viewing/parsing ECAD Designs:
+Require JWT Token in request body to validate request. But Lambdas just verify the token and don’t verify the user from whom the request has originated. Without JWT token, lambdas return 401.
+Lambdas have full access to EFS so they can read any design file from any project whether private or public, process it and return the relevant data.
+
+Problems:
+If the user is signed out, there’s no token. So, Lambdas aren’t available in case a user is signed out but tries to view a public project.
+If we make the Lambdas public (like they were before), they can be easily accessed from anywhere by anyone, which we don’t want. 
+We’re also relying on security through obscurity of information. Someone can theoretically make a request for a private file if they know the project name and file name. Usernames are public and the branch name is likely to be master. They can use their own token as we don’t verify user (or they would be able make request without token if we make lambdas completely public like before)
+
+Possible Solutions:
+We can include the origin in the header and check that on the lambdas when the requests are made. Origin cannot be changed programmatically but can be configured before making the request from a client.
+We can generate a special token which would contain a special payload (a key?) in case of the signed out user and use that along with the privacy status of the project in the request data. The FE can request BK for that token and keep that until the user isn’t logged in. When a request is made to the lambda, lambda checks that token and knows that it’s a public request from the payload in that token and matches it with the privacy status of the project in the request body. However, someone can use their own user token after signing in, for a request for someone’s private project as we’re not verifying the user.
+We can keep using the special token as API key in case of public projects with signed out users. But also verify the user and user’s access to the project using the DB from the lambdas.
+
+Must Do:
+Use the commit hash specifically for reading files from EFS in the lambdas as it’s almost impossible to guess. Lambdas currently use either branch name or commit hash for this, whichever is provided. However, commit hash takes precedence if provided.
